@@ -11,7 +11,8 @@
 | 参数 | 类型 | 说明 |
 | -------- | -------- | -------- |
 | formattedData   | Array<{ date: string, count: number }>  | 由dataquery查询得到，日期格式为"YYYY-MM-DD"  |
-| weeksToShows  | number?  | 展示的时间周期  |
+| startDate   | string?  | 展示的起始日期，格式YYYY-MM-DD  |
+| endDate   | string?  | 展示的终止日期，格式YYYY-MM-DD  |
 | title   | string?  | 图表标题  |
 | titleAlign   | "left" | "right" | "center"  | 图表标题对齐方式  |
 | unit   | string? | 活动次数单位  |

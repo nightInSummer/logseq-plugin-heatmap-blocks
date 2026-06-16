@@ -13,7 +13,8 @@ For the query results, the plugin will attempt to parse whether they contain num
 | Parameter | Type | Description |
 | -------- | -------- | -------- |
 | formattedData | Array<{ date: string, count: number }> | Retrieved via the data query; date format is "YYYY-MM-DD" |
-| weeksToShows | number? | The time period to display (in weeks) |
+| startDate | string? | start date of tracking, format: "YYYY-MM-DD" |
+| endDate | string? | end date of tracking, format: "YYYY-MM-DD" |
 | title | string? | Chart title |
 | titleAlign | "left" \| "right" \| "center" | Chart title alignment |
 | unit | string? | Unit for the number of activities |
