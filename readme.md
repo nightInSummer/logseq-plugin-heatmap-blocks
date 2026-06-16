@@ -1,5 +1,7 @@
 # Logseq Heatmap Block Plugin
 
+[漢语文档](./readme-han.md)
+
 This plugin renders a heatmap based on a provided data query and offers minor styling configurations. You can use it to track habits.
 
 ## How to Use
