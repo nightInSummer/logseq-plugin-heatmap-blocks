@@ -1,6 +1,7 @@
-import React, { CSSProperties, useMemo } from "react";
+import React, { CSSProperties, useMemo, useState } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import dayjs from "dayjs";
+import { Tooltip, type IPosition } from "react-tooltip";
 import { maxBy, minBy } from "lodash-es";
 import { getLongestStreak, useThemeMode } from "./utils";
 import { getInterpolatedColor } from "./color";
@@ -16,7 +17,23 @@ type Datum = {
   count: number;
 };
 
+type HeatmapTooltipState = {
+  content: string;
+  position: IPosition;
+};
+
 const NUM_WEEKS = 25;
+const DEFAULT_TOOLTIP_TEMPLATE = "{date}: {count} times";
+const DEFAULT_TOOLTIP_FALLBACK = "无记录";
+
+function renderTooltipTemplate(
+  template: string,
+  data: { date: string; count: number },
+) {
+  return template.replace(/\{(date|count)\}/g, (_, key: "date" | "count") =>
+    String(data[key]),
+  );
+}
 
 export const Calendar = ({
   formattedData,
@@ -32,6 +49,10 @@ export const Calendar = ({
   showActiveDays = true,
   showPeakDay = true,
   showLongestStreak = true,
+  tooltipContentTemplate,
+  tooltipTemplate,
+  tooltipFallback = DEFAULT_TOOLTIP_FALLBACK,
+  tooltipFallbackContent,
 }: {
   formattedData: { date: string; count: number }[];
   startDate?: string;
@@ -46,7 +67,14 @@ export const Calendar = ({
   showActiveDays?: boolean;
   showPeakDay?: boolean;
   showLongestStreak?: boolean;
+  tooltipContentTemplate?: string;
+  tooltipTemplate?: string;
+  tooltipFallback?: string;
+  tooltipFallbackContent?: string;
 }) => {
+  const [tooltipState, setTooltipState] =
+    useState<HeatmapTooltipState | null>(null);
+
   const startDateDayjs = _startDate
     ? dayjs(_startDate, "YYYY-MM-DD")
     : dayjs().subtract(NUM_WEEKS, "week").startOf("week");
@@ -104,6 +132,14 @@ export const Calendar = ({
     };
   }, [formattedData, startDate, today, showSummary]);
 
+  const tooltipTemplateString =
+    tooltipContentTemplate || tooltipTemplate || DEFAULT_TOOLTIP_TEMPLATE;
+  const tooltipFallbackString = tooltipFallbackContent || tooltipFallback;
+  const tooltipId = useMemo(
+    () => `heatmap-day-tooltip-${Math.random().toString(36).slice(2)}`,
+    [],
+  );
+
   const containerWidth = "100%";
   return (
     <div className="heatmap-root" style={{ width: containerWidth }}>
@@ -159,14 +195,51 @@ export const Calendar = ({
               );
             }
 
+            const showTooltip = (target: SVGRectElement) => {
+              const rect = target.getBoundingClientRect();
+              const content =
+                dateStr && count > 0
+                  ? renderTooltipTemplate(tooltipTemplateString, {
+                      date: dateStr,
+                      count,
+                    })
+                  : tooltipFallbackString;
+
+              setTooltipState({
+                content,
+                position: {
+                  x: rect.left + rect.width / 2,
+                  y: rect.top,
+                },
+              });
+            };
+
             return React.cloneElement(element, {
               rx: 3,
-              title: dateStr ? `${dateStr} : ${count} times` : "No data",
+              onMouseOver: (event: React.MouseEvent<SVGRectElement>) => {
+                showTooltip(event.currentTarget);
+              },
+              onMouseMove: (event: React.MouseEvent<SVGRectElement>) => {
+                showTooltip(event.currentTarget);
+              },
+              onMouseOut: () => {
+                setTooltipState(null);
+              },
               ...(customFill
                 ? { style: { ...element.props.style, fill: customFill } }
                 : {}),
             });
           }}
+        />
+
+        <Tooltip
+          id={tooltipId}
+          content={tooltipState?.content}
+          isOpen={Boolean(tooltipState)}
+          position={tooltipState?.position}
+          place="top"
+          positionStrategy="fixed"
+          disableStyleInjection
         />
 
         {showSummary && summary && (

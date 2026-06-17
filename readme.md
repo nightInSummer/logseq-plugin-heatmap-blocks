@@ -35,6 +35,8 @@ For the query results, the plugin will attempt to parse whether they contain num
 | showActiveDays | boolean? | Display total number of active days |
 | showPeakDays | boolean? | Display maximum count in a single day |
 | showLongestStreak | boolean? | Display the longest continuous active streak |
+| tooltipContentTemplate | string? | Tooltip content template for recorded days. Supports `{date}` and `{count}`. Defaults to `"{date}: {count} times"` |
+| tooltipFallback | string? | Tooltip content for days without records. Defaults to `"无记录"` |
 
 
 ## Demo
@@ -62,6 +64,8 @@ For the query results, the plugin will attempt to parse whether they contain num
 {
   "title": "📓✨✍️",
   "startDate": "2026-01-01",
-  "endDate": "2026-12-31"
+  "endDate": "2026-12-31",
+  "tooltipContentTemplate": "{date}: {count} times",
+  "tooltipFallback": "无记录"
 }
 ```
